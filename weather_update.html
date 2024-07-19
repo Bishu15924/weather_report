@@ -1,0 +1,131 @@
+<!---weather_app.html----->
+<!---realtime weather update--->
+<!--- thank You---->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real time Weather Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .weather-icon {
+            width: 64px;
+            height: 64px;
+        }
+        .weather-detail {
+            margin: 10px 0;
+        }
+        #location-input {
+            padding: 10px;
+            width: calc(100% - 22px);
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #get-weather-btn, #use-location-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #get-weather-btn {
+            background-color: #28a745;
+            color: #fff;
+        }
+        #use-location-btn {
+            background-color: #007bff;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather App</h1>
+        <input type="text" id="location-input" placeholder="Enter location">
+        <div>
+            <button id="get-weather-btn">Get Weather</button>
+            <button id="use-location-btn">Use My Location</button>
+        </div>
+        <div id="weather">
+            <div id="location-name" class="weather-detail"></div>
+            <div id="region-country" class="weather-detail"></div>
+            <div id="localtime" class="weather-detail"></div>
+            <div id="temperature" class="weather-detail"></div>
+            <div id="condition" class="weather-detail"></div>
+            <img id="condition-icon" class="weather-icon" src="" alt="Weather Icon">
+            <div id="wind" class="weather-detail"></div>
+            <div id="humidity" class="weather-detail"></div>
+            <div id="feelslike" class="weather-detail"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiKey = 'PASTE_API_KEY';
+            
+            function fetchWeather(location) {
+                const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}`;
+                
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('location-name').textContent = `Location: ${data.location.name}`;
+                        document.getElementById('region-country').textContent = `Region/Country: ${data.location.region}, ${data.location.country}`;
+                        document.getElementById('localtime').textContent = `Local Time: ${data.location.localtime}`;
+                        document.getElementById('temperature').textContent = `Temperature: ${data.current.temp_c}°C (${data.current.temp_f}°F)`;
+                        document.getElementById('condition').textContent = `Condition: ${data.current.condition.text}`;
+                        document.getElementById('condition-icon').src = `https:${data.current.condition.icon}`;
+                        document.getElementById('wind').textContent = `Wind: ${data.current.wind_kph} kph (${data.current.wind_mph} mph) ${data.current.wind_dir}`;
+                        document.getElementById('humidity').textContent = `Humidity: ${data.current.humidity}%`;
+                        document.getElementById('feelslike').textContent = `Feels Like: ${data.current.feelslike_c}°C (${data.current.feelslike_f}°F)`;
+                    })
+                    .catch(error => console.error('Error fetching weather data:', error));
+            }
+
+            document.getElementById('get-weather-btn').addEventListener('click', function() {
+                const location = document.getElementById('location-input').value;
+                if (location) {
+                    fetchWeather(location);
+                } else {
+                    alert('Please enter a location');
+                }
+            });
+
+            document.getElementById('use-location-btn').addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        fetchWeather(`${lat},${lon}`);
+                    }, function() {
+                        alert('Unable to retrieve your location');
+                    });
+                } else {
+                    alert('Geolocation is not supported by your browser');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
